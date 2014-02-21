@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dao.Test2Mapper">
+
+	<!-- USER ====================================================================================================== -->
+ 
+<select id="loginChk" resultType="bean" parameterType="bean">
+	select * from join where j_id = #{j_id} 
+</select>
+
+<select id="listCount" resultType="int" parameterType="bean">
+ 	select count(*) from ${menu}
+</select>
+
+<!-- notice -->
+<update id="addCount"  parameterType="bean">
+	update ${menu} set cnt = cnt+1 where id = #{id} 
+</update>
+ 
+<!-- product -->
+<update id="addCountP"  parameterType="bean">
+	update ${menu} set cnt = cnt+1 where p_id = #{p_id} 
+</update>
+ 
+<!-- notice -->
+<select id="maxId" resultType="int" parameterType="bean">
+	select max(id) from ${menu}
+</select>
+
+<!-- adminPro -->
+<select id="maxPId" resultType="int" parameterType="bean">
+	select max(p_id) from product
+</select>
+ 
+
+	<!--  board ================================== -->
+ 
+	 <select id="boardList" resultType="bean" parameterType="bean">
+	 <![CDATA[
+	 	select * from (select rownum rnum, id, gid, seq,ref, 
+					reg_date, cnt, pname, pw, title, content, upfile from 
+					(select * from ${menu} order by gid desc, seq))
+					 where rnum>= #{start} and rnum <= #{end}
+	 ]]>
+	 </select>
+	 
+	 <select id="boardDetail" resultType="bean" parameterType="bean">
+	 	select * from ${menu} where id = #{id}
+	 </select>
+	 
+	 <insert id="boardWrite"  parameterType="bean">
+		insert into ${menu} (id,gid,seq,ref, reg_date, cnt, pname, pw, title, content, upfile) values 
+						(#{id},#{gid},#{seq},#{ref},sysdate,-1,#{pname},#{pw},#{title},#{content},#{upfile})
+	 </insert>
+	 
+	 <select id="boardPw" resultType="int" parameterType="bean">
+		select count(*) from ${menu} where id = #{id} and pw = #{pw}
+	 </select>
+	 
+	 <update id="boardFileDelete"  parameterType="bean">
+		update ${menu} set upfile ='' where id = #{id} 
+	 </update>
+	 
+	 <delete id="boardDelete"  parameterType="bean">
+		 delete from ${menu} where id = #{id}
+	 </delete>
+	 
+	 <update id="boardModify"  parameterType="bean">
+		update ${menu} set title = #{title}, pname = #{pname}, content = #{content}, upfile = #{upfile} where id = #{id} 
+	 </update>
+	 
+	  <update id="boardReply"  parameterType="bean">
+		update ${menu} set seq = seq +1 where gid = #{gid} and seq > #{seq}
+	 </update>
+
+	<!-- product ==================================  -->
+ 
+	<select id="productListTop" resultType="bean" parameterType="bean">
+		select * from ${menu} where c_id = #{c_id}
+	</select>
+	
+	<select id="productList" resultType="bean" parameterType="bean">
+		select * from ${menu} where c_id = #{c_id} and content= #{content}
+	</select>
+	
+	<select id="procg" resultType="bean" parameterType="bean">
+		select distinct c_id from product
+	</select>
+	
+	<select id="promenu" resultType="bean" parameterType="bean">
+		select distinct content from product where c_id= #{c_id}
+	</select>
+	
+	 <select id="productDetail" resultType="bean" parameterType="bean">
+		select * from product where p_id = #{p_id} and c_id = #{c_id} 
+	</select>
+
+
+	<!-- cart ================================== --> 
+	
+	<select id="chkppp" resultType="int" parameterType="bean">
+		select p_num from cart where p_id= #{p_id} and j_id=#{j_id} and chknum = 0
+	</select>
+	
+	<update id="cartppp" parameterType="bean">
+		update cart set p_num=#{p_num} where p_id=#{p_id}
+	</update> 
+	
+	<update id="cartListpnum" parameterType="bean">
+		update cart set p_num=#{p_num} where p_id=#{p_id}
+	</update> 
+	
+	 <insert id="cartIn" parameterType="bean">
+	 	insert into cart values (#{j_id},sysdate,#{p_intro},#{price},#{cartcoin},#{sale},#{good},#{p_id},#{c_id},#{content},#{p_num},#{chknum})
+	 </insert>
+	 
+	 <select id="cartList" resultType="bean" parameterType="bean">
+	 	select * from cart where j_id = #{j_id} and chknum = 0
+	 </select>
+	 
+	 <select id="transtwo" resultType="bean" parameterType="bean">
+	 	select * from cart where chknum = 2 order by j_id
+	 </select>
+	 
+	 <delete id="cartOut" parameterType="bean">
+	 	delete from ${menu} where j_id = #{j_id}
+	 </delete>
+	 
+	 <delete id="cartOutOne" parameterType="bean">
+	 	delete from ${menu} where j_id = #{j_id} and p_id = ${p_id} and reg_date=to_timestamp('${reg_date_str}', 'YY/MM/DD HH24:MI:ss.FF3')
+	 </delete>
+	 
+	 <update id="paymentcart" parameterType="bean">
+		update cart set chknum = #{chknum} where j_id=#{j_id}
+	</update> 
+	
+	 <select id="oneandfive" resultType="bean" parameterType="bean">
+	 	select * from cart where j_id = #{j_id} and (chknum = 1 or chknum = 5)
+	 </select>
+	
+	<!-- Info ================================== --> 
+ 
+	 <!-- my -->
+	 
+	 <select id="myDetail" resultType="bean" parameterType="bean">
+	 	select * from join where j_id = #{j_id}
+	 </select>
+	 
+	 <update id="myModify"  parameterType="bean">
+		update join set name=#{name}, birth=#{birth}, pass=#{pass}, phone=#{phone}, address=#{address}, email=#{email}, sex=#{sex} where j_id = #{j_id} 
+ 	 </update>
+ 	 
+ 	 <delete id="myDelete"  parameterType="bean">
+		 delete from join where j_id = #{j_id}
+	 </delete>
+	 
+	 <insert id="myWrite"  parameterType="bean">
+		 insert into join (j_id,name,birth,pass,phone,address,email,sex) values 
+					 (#{j_id},#{name},#{birth},#{pass},#{phone},#{address},#{email},#{sex})
+  	 </insert>
+  	  
+  	 <insert id="payment"  parameterType="bean">
+  	  	 insert into receive (j_id,name,phone,address,email,chknum) values 
+					 (#{j_id},#{name},#{phone},#{address},#{email},#{chknum}) 
+  	 </insert>
+  	 
+  	<update id="sendreg"  parameterType="bean">
+		update cart set chknum=4 where j_id = #{j_id} and p_id=#{p_id} and reg_date=to_timestamp('${reg_date_str}', 'YY/MM/DD HH24:MI:ss.FF3') 
+ 	</update>
+ 	
+ 	 <select id="id_Check" resultType="bean" parameterType="bean">
+ 		select * from join where j_id = '${j_id}'
+	 </select>
+ 	
+
+	<!-- ADMIN ====================================================================================================== -->
+	
+	<!-- join -->
+ 
+ <select id="joinList" resultType="bean" parameterType="bean">
+ 	select * from ${menu}
+ </select>
+ 
+ <select id="joinDetail" resultType="bean" parameterType="bean">
+ 	select * from ${menu} where j_id = #{j_id}
+ </select>
+
+ <insert id="joinWrite"  parameterType="bean">
+	insert into ${menu} (j_id,name,birth,pass,phone,address,email,sex) values 
+					(#{j_id},#{name},#{birth},#{pass},#{phone},#{address},#{email},#{sex})
+ </insert>
+ 
+ <delete id="joinDelete"  parameterType="bean">
+ delete from ${menu} where j_id = #{j_id}
+ </delete>
+ 
+ <update id="joinModify"  parameterType="bean">
+	update ${menu} set name=#{name}, birth=#{birth}, pass=#{pass}, phone=#{phone}, address=#{address}, email=#{email}, sex=#{sex} where j_id = #{j_id} 
+ </update>
+
+
+	<!-- AdminPro_Product -->
+	
+ <select id="adminProUp" resultType="bean" parameterType="bean">
+	select * from product order by p_id asc
+ </select>
+  
+ <update id="adminProUpdate"  parameterType="bean">
+	update product set p_intro=#{p_intro}, price=#{price}, sale=#{sale}, cartcoin=#{cartcoin} where p_id = #{p_id} 
+ </update>
+ 
+ <select id="adminProUpForm" resultType="bean" parameterType="bean">
+	select * from product where p_id = #{p_id}
+ </select>
+ 
+ <select id="adminProNewp" resultType="bean" parameterType="bean">
+ 	select distinct c_id from product
+ </select>
+
+ <select id="adminProNewpp" resultType="bean" parameterType="bean">
+ 	select distinct content from product where c_id = #{c_id}
+ </select>
+ 
+ <select id="adminProDelname" resultType="bean" parameterType="bean">
+ 	select distinct p_intro from product where c_id = #{c_id} and content =#{content}
+ </select>
+ 
+
+ <select id="adminProNewcc" resultType="bean" parameterType="bean">
+ 	select distinct content from product where c_id = #{c_id}
+ </select>
+
+ 
+ <insert id="adminProNewWrite"  parameterType="bean">
+	insert into product (p_id,c_id,p_intro,price,cnt,content,sale,cartcoin,good,good_d ) values 
+				(#{p_id}, #{c_id},#{p_intro},#{price},#{cnt},#{content},#{sale},#{cartcoin},#{ponefile},#{ptwofile}) 
+ </insert>
+ 
+ <select id="adminProAll" resultType="bean" parameterType="bean">
+ 	select p_id from product where c_id =#{c_id} and content =#{content} and p_intro =#{p_intro}
+ </select>
+ 
+ <select id="adminProAll2" resultType="bean" parameterType="bean">
+ 	select * from product where p_id=#{p_id}
+ </select>
+ 
+ <delete id="adminProDelete" parameterType="bean">
+	delete from product where p_id = #{p_id} 
+ </delete>
+ 
+	<!-- AdminPro_Gold,Trans -->
+	
+ <select id="goldList" resultType="bean" parameterType="bean">
+ 	 select * from cart where chknum = 1 or chknum = 4 order by j_id
+ </select>
+ 
+ <update id="goldRt"  parameterType="bean">
+ 	 update cart set chknum=2 where j_id = #{j_id} and p_id=#{p_id} and reg_date=to_timestamp('${reg_date_str}', 'YY/MM/DD HH24:MI:ss.FF3') 
+ </update>
+ 
+ 
+ <update id="goldcc"  parameterType="bean">
+ 	 update cart set chknum=5 where j_id = #{j_id} and p_id=#{p_id} and reg_date=to_timestamp('${reg_date_str}', 'YY/MM/DD HH24:MI:ss.FF3') 
+ </update>
+
+ <update id="transRt"  parameterType="bean">
+	 update cart set chknum=3 where j_id = #{j_id} and p_id=#{p_id} and reg_date=to_timestamp('${reg_date_str}', 'YY/MM/DD HH24:MI:ss.FF3') 
+ </update>
+
+	<!-- AdminPro_Send -->
+	
+ <select id="sendList" resultType="bean" parameterType="bean">
+ 	 select * from cart where (chknum = 1 or chknum = 2 or chknum = 3) and j_id = #{j_id} order by chknum
+ </select>	
+ 
+</mapper>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:p="http://www.springframework.org/schema/p"
+xmlns:aop="http://www.springframework.org/schema/aop"
+xmlns:context="http://www.springframework.org/schema/context"
+xmlns:tx="http://www.springframework.org/schema/tx"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.springframework.org/schema/beans         
+http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+http://www.springframework.org/schema/context         
+http://www.springframework.org/schema/context/spring-context-4.0.xsd
+http://www.springframework.org/schema/aop         
+http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+http://www.springframework.org/schema/tx         
+http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+<!-- 데이터소스 -->
+<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+	<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
+	<property name="url" value="jdbc:oracle:thin:@127.0.0.1:1521:xe"/>
+	<property name="username" value="kjw"/>
+	<property name="password" value="kjw"/>
+	<property name="maxActive" value="500"/>
+	<property name="maxIdle" value="100"/>
+	<property name="poolPreparedStatements" value="true" />
+	<property name="defaultAutoCommit" value="true"/>
+</bean>
+
+<!-- 트랜잭션 관리자 -->
+<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+	<property name="dataSource" ref="dataSource"/>
+</bean>
+
+<!-- 마이바티스 설정 // -->
+<bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+	<property name="typeAliasesPackage" value="dao"/>
+	<property name="dataSource" ref="dataSource"/>
+	<property name="configLocation" value="classpath:/xml/mybatis_config.xml"/>
+	
+	<!-- mapper xml 파일을 잡아온다  -->
+	<property name="mapperLocations">
+		<array>
+			<value>classpath:/dao/Test2Mapper.xml</value>
+		</array>
+	</property>	
+</bean>
+
+<!--  sqlSession 을 생성하는 bean -->
+<bean id="sqlsessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+	<constructor-arg name="sqlSessionFactory" ref="sqlSessionFactoryBean"/>
+</bean>
+
+
+
+
+<!-- // ibatis 설정 -->
+<!-- Annotation 을 사용한 트랜잭션 사용시 활성화 -->
+<tx:annotation-driven transaction-manager="transactionManager"/>
+
+
+<!-- 패키지에서 @Controller를 제외하고 나머지를 Bean으로 등록하겠다 임
+	@Component,@Service, @Repository ... 는 사용한다 -->
+<context:component-scan base-package="notice.action">
+	<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+</context:component-scan>
+
+<context:component-scan base-package="product.action">
+	<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+</context:component-scan>
+
+<context:component-scan base-package="join.action">
+	<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+</context:component-scan>
+
+<context:component-scan base-package="info.action">
+	<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+</context:component-scan>
+
+<context:component-scan base-package="cart.action">
+	<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+</context:component-scan>
+
+<context:component-scan base-package="adminPro.action">
+	<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+</context:component-scan>
+
+<context:component-scan base-package="gold.action">
+	<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+</context:component-scan>
+
+<context:component-scan base-package="transfer.action">
+	<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+</context:component-scan>
+
+<!-- mapper 가 있는 패키지 -->
+<context:component-scan base-package="dao"/>
+
+<context:annotation-config/>
+<!--  RequiredAnnotationBeanPostProcessor 이거 대신에 사용하는 태그 -->
+
+
+</beans>
